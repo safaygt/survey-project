@@ -1,15 +1,14 @@
 package com.smartict.ProjectPoll.service;
 
 import com.smartict.ProjectPoll.dto.UserDTO;
-import com.smartict.ProjectPoll.entity.Roles;
 import com.smartict.ProjectPoll.entity.Survey;
 import com.smartict.ProjectPoll.entity.Usr;
 import com.smartict.ProjectPoll.entity.UsrAnswer;
 import com.smartict.ProjectPoll.mapper.UserMapper;
 import com.smartict.ProjectPoll.repository.RolesRepo;
 import com.smartict.ProjectPoll.repository.SurveyRepo;
-import com.smartict.ProjectPoll.repository.UserRepo;
 import com.smartict.ProjectPoll.repository.UsrAnswerRepo;
+import com.smartict.ProjectPoll.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -30,10 +29,8 @@ public class AdminService {
     @Autowired
     private UserRepo userRepo;
 
-
     @Autowired
     private UsrAnswerRepo usrAnswerRepo;
-
 
     @Autowired
     private RolesRepo rolesRepo;
@@ -48,7 +45,11 @@ public class AdminService {
     private SurveyRepo surveyRepo;
 
     @Autowired
-    private SurveyService surveyService; // SurveyService'i enjekte et
+    private SurveyService surveyService;
+
+    public UserDTO getUserDTOFromUsr(Usr user) {
+        return userMapper.toDto(user);
+    }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<UserDTO> getAllUsers() {
@@ -57,12 +58,24 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deleteUser(String username) {
         Usr usr = userRepo.findByUsername(username);
         if (usr == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
+        // Kullanıcının anket cevaplarını sil
+        List<UsrAnswer> usrAnswers = usrAnswerRepo.findByUser(usr);
+        usrAnswerRepo.deleteAll(usrAnswers);
+
+        // Kullanıcının anketlerini sil (eğer varsa)
+        List<Survey> surveys = surveyRepo.findByFKuserID(usr, Sort.by(Sort.Direction.ASC, "id"));
+        for (Survey survey : surveys) {
+            surveyService.deleteSurvey(survey.getId());
+        }
+
+        // Kullanıcıyı sil
         userRepo.delete(usr);
     }
 
@@ -90,13 +103,18 @@ public class AdminService {
         return userMapper.toDto(usr);
     }
 
-    public UserDTO updateUser(UserDTO userDTO) {
+    public UserDTO updateUserWithPasswordCheck(UserDTO userDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         Usr usr = userRepo.findByUsername(username);
 
         if (usr == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+
+        // Mevcut şifreyi kontrol et
+        if (!passwordEncoder.matches(userDTO.getPassword(), usr.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid current password");
         }
 
         // Kullanıcı adını güncelle
@@ -111,13 +129,18 @@ public class AdminService {
     }
 
     @Transactional
-    public void deleteUser() {
+    public void deleteUserWithPasswordCheck(UserDTO userDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         Usr usr = userRepo.findByUsername(username);
 
         if (usr == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+
+        // Mevcut şifreyi kontrol et
+        if (!passwordEncoder.matches(userDTO.getPassword(), usr.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid current password");
         }
 
         // Kullanıcının anket cevaplarını sil

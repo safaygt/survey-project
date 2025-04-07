@@ -2,7 +2,6 @@ package com.smartict.ProjectPoll.controller;
 
 import com.smartict.ProjectPoll.dto.UserDTO;
 import com.smartict.ProjectPoll.service.AdminService;
-import com.smartict.ProjectPoll.service.UserService; // UserService'i ekledik
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,9 +17,6 @@ public class UserController {
 
     @Autowired
     private AdminService adminService;
-
-    @Autowired
-    private UserService userService; // UserService'i enjekte ettik
 
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers() {
@@ -42,7 +38,7 @@ public class UserController {
 
     @PatchMapping("/update")
     public ResponseEntity<UserDTO> updateUser(@RequestBody UserDTO userDTO) {
-        UserDTO updatedUser = adminService.updateUser(userDTO); // UserService'den updateUser'ı çağırdık
+        UserDTO updatedUser = adminService.updateUserWithPasswordCheck(userDTO); // Şifre kontrolü ekledik
         return ResponseEntity.ok(updatedUser);
     }
 
@@ -55,8 +51,8 @@ public class UserController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteUser() {
-        adminService.deleteUser(); // UserService'den deleteUser'ı çağırdık
+    public ResponseEntity<Void> deleteUser(@RequestBody UserDTO userDTO) {
+        adminService.deleteUserWithPasswordCheck(userDTO); // Şifre kontrolü ekledik
         return ResponseEntity.noContent().build();
     }
 }

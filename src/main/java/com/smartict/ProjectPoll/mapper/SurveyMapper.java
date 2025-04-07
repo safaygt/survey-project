@@ -10,8 +10,10 @@ public interface SurveyMapper {
 
     @Mapping(source = "id", target = "id")
     @Mapping(source = "fkuserID", target = "FKuserID.id")
+    @Mapping(source = "creationDate", target = "creationDate")
     Survey toEntity(SurveyDTO dto);
 
     @Mapping(source = "FKuserID.id", target = "fkuserID")
+    @Mapping(source = "creationDate", target = "creationDate")
     SurveyDTO toDto(Survey entity);
 }

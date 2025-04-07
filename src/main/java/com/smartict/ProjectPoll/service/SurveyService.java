@@ -39,10 +39,10 @@ public class SurveyService {
     private UsrAnswerRepo usrAnswerRepo;
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public List<SurveyDTO> getSurveysByUserId(Integer userId, Sort sort) { // Sort parametresini ekleyin
+    public List<SurveyDTO> getSurveysByUserId(Integer userId, Sort sort) {
         Usr user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        List<Survey> surveys = surveyRepo.findByFKuserID(user, sort); // Sort nesnesini kullanın
+        List<Survey> surveys = surveyRepo.findByFKuserID(user, sort);
         return surveys.stream()
                 .map(surveyMapper::toDto)
                 .collect(Collectors.toList());
@@ -72,10 +72,8 @@ public class SurveyService {
         Survey survey = surveyRepo.findById(surveyId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Survey not found"));
 
-        // İlişkili soruları bul ve sil
         List<Question> questions = questionRepo.findBySurvey(survey, Sort.by(Sort.Direction.ASC, "id"));
         for (Question question : questions) {
-            // Sorulara ait cevap seçeneklerini bul ve sil
             List<AnswerOption> answerOptions = answerOptionRepo.findByQuestion(question, Sort.by(Sort.Direction.ASC, "id"));
             List<UsrAnswer> usrAnswers = usrAnswerRepo.findByQuestion(question, Sort.by(Sort.Direction.ASC, "id"));
             usrAnswerRepo.deleteAll(usrAnswers);
@@ -83,17 +81,14 @@ public class SurveyService {
             questionRepo.delete(question);
         }
 
-        // Anketi sil
         surveyRepo.delete(survey);
     }
-
-
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<SurveyDTO> getAllSurveys(Sort sort) {
         return surveyRepo.findAll(sort).stream()
                 .map(surveyMapper::toDto)
                 .collect(Collectors.toList());
     }
-
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public SurveyDTO createSurvey(SurveyDTO surveyDTO) {
@@ -111,5 +106,21 @@ public class SurveyService {
         Survey survey = surveyRepo.findById(surveyId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Survey not found"));
         return surveyMapper.toDto(survey);
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public List<SurveyDTO> getAnsweredSurveysByUserId(Integer userId, Sort sort) {
+        Usr user = userRepo.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        List<Integer> answeredSurveyIds = usrAnswerRepo.findByUser(user).stream()
+                .map(usrAnswer -> usrAnswer.getQuestion().getSurvey().getId())
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<Survey> surveys = surveyRepo.findAllById(answeredSurveyIds);
+        return surveys.stream()
+                .map(surveyMapper::toDto)
+                .collect(Collectors.toList());
     }
 }

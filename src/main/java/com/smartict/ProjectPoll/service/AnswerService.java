@@ -1,6 +1,5 @@
 package com.smartict.ProjectPoll.service;
 
-import com.smartict.ProjectPoll.dto.SurveyDTO;
 import com.smartict.ProjectPoll.dto.UsrAnswerDTO;
 import com.smartict.ProjectPoll.entity.AnswerOption;
 import com.smartict.ProjectPoll.entity.Question;
@@ -82,6 +81,17 @@ public class AnswerService {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public List<UsrAnswerDTO> getAnswerByUsername(String username, Sort sort) {
+        Usr usr = userRepo.findByUsername(username);
+        if (usr == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        List<UsrAnswer> answers = usrAnswerRepo.findByUser(usr);
+        return answers.stream().map(usrAnswerMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<UsrAnswerDTO> getAllAnswers(Sort sort) {
         return usrAnswerRepo.findAll(sort).stream()
                 .map(usrAnswerMapper::toDto)
@@ -91,5 +101,12 @@ public class AnswerService {
 
     public boolean checkSurveyAnswered(Integer surveyId, Integer userId) {
         return usrAnswerRepo.existsByUser_IdAndQuestion_Survey_Id(userId, surveyId);
+    }
+
+    public List<Usr> getUsersAnsweredSurvey(Integer surveyId) {
+        return usrAnswerRepo.findByQuestion_Survey_Id(surveyId).stream()
+                .map(UsrAnswer::getUser)
+                .distinct()
+                .collect(Collectors.toList());
     }
 }

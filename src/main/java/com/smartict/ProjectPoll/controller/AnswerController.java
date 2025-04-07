@@ -1,20 +1,25 @@
 package com.smartict.ProjectPoll.controller;
 
+import com.smartict.ProjectPoll.dto.SurveyDTO;
 import com.smartict.ProjectPoll.dto.UsrAnswerDTO;
+import com.smartict.ProjectPoll.entity.Usr;
 import com.smartict.ProjectPoll.jwt.JwtUtil;
+import com.smartict.ProjectPoll.service.AdminService;
 import com.smartict.ProjectPoll.service.AnswerService;
+import com.smartict.ProjectPoll.service.SurveyService;
+import com.smartict.ProjectPoll.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("v1/surveys/{surveyId}/user-answer")
@@ -22,12 +27,16 @@ import java.util.List;
 public class AnswerController {
 
     private final AnswerService answerService;
+    private final SurveyService surveyService;
     private final JwtUtil jwtUtil;
+    private final AdminService adminService;
 
     @Autowired
-    public AnswerController(AnswerService answerService, JwtUtil jwtUtil) {
+    public AnswerController(AnswerService answerService, JwtUtil jwtUtil, SurveyService surveyService, AdminService adminService) {
         this.answerService = answerService;
         this.jwtUtil = jwtUtil;
+        this.surveyService = surveyService;
+        this.adminService = adminService;
     }
 
     @PostMapping
@@ -39,9 +48,6 @@ public class AnswerController {
             }
 
             String token = authorizationHeader.substring(7);
-
-            // SecurityContextHolder üzerinden UserDetails al
-            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
             if (!jwtUtil.validateToken(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
@@ -56,27 +62,13 @@ public class AnswerController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<UsrAnswerDTO>> getAnswers(){
-        try{
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<List<UsrAnswerDTO>> getAnswers() {
+        try {
             List<UsrAnswerDTO> answers = answerService.getAllAnswers(Sort.by(Sort.Direction.ASC, "id"));
             return ResponseEntity.ok(answers);
-
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
-
-        }
-
-    }
-
-    @GetMapping("/specific-answer/{userId}")
-    public ResponseEntity<List<UsrAnswerDTO>> getAnswersByUser(@PathVariable Integer userId){
-    try {
-        List<UsrAnswerDTO> answers = answerService.getAnswerByUsr(userId, Sort.by(Sort.Direction.ASC, "id"));
-        return ResponseEntity.ok(answers);
-    }catch (ResponseStatusException e){
-        return ResponseEntity.status(e.getStatusCode()).body(Collections.emptyList());
-    }catch (Exception e){
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
         }
     }
 
@@ -99,6 +91,41 @@ public class AnswerController {
             return ResponseEntity.ok(answered);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error checking survey answer: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/answered-users")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> getAnsweredUsers(@PathVariable Integer surveyId) {
+        try {
+            List<Usr> users = answerService.getUsersAnsweredSurvey(surveyId);
+            return ResponseEntity.ok(users.stream()
+                    .map(usr -> adminService.getUserDTOFromUsr(usr)) // UserService'i kullanarak Usr'dan UserDTO'ya dönüşüm
+                    .collect(Collectors.toList()));
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error getting answered users: " + e.getMessage());
+        }
+    }
+
+
+
+
+    //Kullanıcının ilgili ankete ait cevapları önüme gelecek. Buradaki işlem daha bitmedi
+    @GetMapping("/{username}/answers")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> getUserSurveyAnswersByUsername(@PathVariable Integer surveyId, @PathVariable String username) {
+        try {
+            List<UsrAnswerDTO> answers = answerService.getAnswerByUsername(username, Sort.by(Sort.Direction.ASC, "id")).stream()
+                    .filter(answer -> answer.getQuestionId() != null && answer.getQuestionId() != 0 && answer.getQuestionId() != null)
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(answers);
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error getting user survey answers: " + e.getMessage());
         }
     }
 }

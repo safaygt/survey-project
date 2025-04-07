@@ -1,6 +1,5 @@
 package com.smartict.ProjectPoll.repository;
 
-import com.smartict.ProjectPoll.entity.AnswerOption;
 import com.smartict.ProjectPoll.entity.Question;
 import com.smartict.ProjectPoll.entity.Usr;
 import com.smartict.ProjectPoll.entity.UsrAnswer;
@@ -17,8 +16,9 @@ public interface UsrAnswerRepo extends JpaRepository<UsrAnswer, Integer> {
 
     List<UsrAnswer> findByQuestion(Question question, Sort sort);
 
-    boolean existsByUser_IdAndQuestion_Survey_Id(Integer userId, Integer surveyId); // Bu satırı ekleyin
+    boolean existsByUser_IdAndQuestion_Survey_Id(Integer userId, Integer surveyId);
 
-    List<UsrAnswer> findByUser(Usr user); // Bu satırı ekleyin
+    List<UsrAnswer> findByUser(Usr user);
 
+    List<UsrAnswer> findByQuestion_Survey_Id(Integer surveyId); // Bu satırı ekleyin
 }
