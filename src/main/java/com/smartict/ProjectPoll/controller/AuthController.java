@@ -25,10 +25,13 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
+    /*
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody UserDTO userDTO) {
         return ResponseEntity.ok(userService.register(userDTO));
     }
+
+    */
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserDTO userDTO) {
@@ -39,7 +42,8 @@ public class AuthController {
             String username = userDTO.getUsername(); // Kullanıcı adını al
 
             jwtResponse.setToken(token);
-            jwtResponse.setUserId(userId); // Kullanıcı ID'sini ayarla
+            jwtResponse.setUserId(userId);
+            // Kullanıcı ID'sini ayarla
             jwtResponse.setUsername(username); // Kullanıcı adını ayarla
             jwtResponse.setResponseCode(HttpStatus.OK);
             return ResponseEntity.ok(jwtResponse);

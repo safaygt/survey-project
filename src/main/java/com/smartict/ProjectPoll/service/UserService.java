@@ -45,6 +45,8 @@ public class UserService implements UserDetailsService {
         this.userMapper = userMapper;
     }
 
+
+    /*
     public String register(UserDTO userDTO) {
         if (userRepo.findByUsername(userDTO.getUsername()) != null) {
             return "This username is already used!";
@@ -67,13 +69,10 @@ public class UserService implements UserDetailsService {
         return "User has been saved successfully!";
     }
 
+
+     */
+
     public String login(UserDTO userDTO, AuthenticationManager authenticationManager) {
-        Usr usr = userRepo.findByUsername(userDTO.getUsername());
-
-        if (usr == null) {
-            throw new BadCredentialsException("User not found: " + userDTO.getUsername());
-        }
-
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(userDTO.getUsername(), userDTO.getPassword())
@@ -83,8 +82,18 @@ public class UserService implements UserDetailsService {
             throw new BadCredentialsException("Wrong username or password!");
         }
 
+        Usr usr = userRepo.findByUsername(userDTO.getUsername());
+
+        if (usr == null) {
+            usr = new Usr();
+            usr.setUsername(userDTO.getUsername());
+            usr.setRole(rolesRepo.findById(5).orElse(null)); // normal role = 5.  Admin olmasını istersen 4 ver.
+            userRepo.save(usr);
+        }
+
         return jwtUtil.generateToken(usr.getUsername(), usr.getRole().getRoleText(), usr.getId());
     }
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -99,7 +108,7 @@ public class UserService implements UserDetailsService {
             authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRoleText()));
         }
 
-        return new User(usr.getUsername(), usr.getPassword(), authorities);
+        return new User(usr.getUsername(), usr.getUsername(), authorities);
     }
 
     public Integer findUserIdByUsername(String username) {
