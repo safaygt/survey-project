@@ -87,6 +87,7 @@ public class UserService implements UserDetailsService {
         if (usr == null) {
             usr = new Usr();
             usr.setUsername(userDTO.getUsername());
+            usr.setPassword(passwordEncoder.encode(userDTO.getPassword()));
             usr.setRole(rolesRepo.findById(5).orElse(null)); // normal role = 5.  Admin olmasını istersen 4 ver.
             userRepo.save(usr);
         }
