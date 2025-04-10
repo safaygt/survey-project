@@ -45,33 +45,6 @@ public class UserService implements UserDetailsService {
         this.userMapper = userMapper;
     }
 
-
-    /*
-    public String register(UserDTO userDTO) {
-        if (userRepo.findByUsername(userDTO.getUsername()) != null) {
-            return "This username is already used!";
-        }
-
-        // Varsayılan rol ID'sini ayarla
-        if (userDTO.getRoleId() == null) {
-            userDTO.setRoleId(5);
-        }
-
-        Usr usr = userMapper.toEntity(userDTO);
-        usr.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-
-        Roles role = rolesRepo.findById(userDTO.getRoleId()).orElse(null);
-        if (role == null) {
-            return "Role not found";
-        }
-        usr.setRole(role);
-        userRepo.save(usr);
-        return "User has been saved successfully!";
-    }
-
-
-     */
-
     public String login(UserDTO userDTO, AuthenticationManager authenticationManager) {
         try {
             authenticationManager.authenticate(
@@ -85,16 +58,11 @@ public class UserService implements UserDetailsService {
         Usr usr = userRepo.findByUsername(userDTO.getUsername());
 
         if (usr == null) {
-            usr = new Usr();
-            usr.setUsername(userDTO.getUsername());
-            usr.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-            usr.setRole(rolesRepo.findById(5).orElse(null)); // normal role = 5.  Admin olmasını istersen 4 ver.
-            userRepo.save(usr);
+            return "User not found"; // Eğer kullanıcı bulunamazsa hata döndür
         }
 
         return jwtUtil.generateToken(usr.getUsername(), usr.getRole().getRoleText(), usr.getId());
     }
-
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -109,7 +77,7 @@ public class UserService implements UserDetailsService {
             authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRoleText()));
         }
 
-        return new User(usr.getUsername(), usr.getUsername(), authorities);
+        return new User(usr.getUsername(), usr.getPassword(), authorities); // password'u doğru şekilde gönder
     }
 
     public Integer findUserIdByUsername(String username) {
