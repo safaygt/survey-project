@@ -83,7 +83,7 @@ public class SurveyService {
 
         surveyRepo.delete(survey);
     }
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+
     public List<SurveyDTO> getAllSurveys(Sort sort) {
         return surveyRepo.findAll(sort).stream()
                 .map(surveyMapper::toDto)
@@ -101,7 +101,7 @@ public class SurveyService {
         return surveyMapper.toDto(surveyRepo.save(survey));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+
     public SurveyDTO getSurveyById(Integer surveyId) {
         Survey survey = surveyRepo.findById(surveyId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Survey not found"));

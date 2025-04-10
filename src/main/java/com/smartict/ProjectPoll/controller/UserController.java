@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("v1/users")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*") // CrossOrigin ekle
 public class UserController {
 
     @Autowired
@@ -41,6 +41,7 @@ public class UserController {
         UserDTO updatedUser = adminService.updateUserWithPasswordCheck(userDTO); // Şifre kontrolü ekledik
         return ResponseEntity.ok(updatedUser);
     }
+
 
     @GetMapping("/current")
     public ResponseEntity<UserDTO> getCurrentUser() {

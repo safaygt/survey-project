@@ -15,13 +15,13 @@
         @Column(nullable = false, unique = true)
         private String username;
 
-        @Column(nullable = false)
+        @Column
         private String name;
 
-        @Column(nullable = false)
+        @Column
         private String lastName;
 
-        @Column(nullable = false)
+        @Column
         private String password;
 
         @ManyToOne

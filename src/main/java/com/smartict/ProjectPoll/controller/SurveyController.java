@@ -34,6 +34,8 @@ public class SurveyController {
             List<SurveyDTO> surveys = surveyService.getAllSurveys(Sort.by(Sort.Direction.ASC, "id"));
             return ResponseEntity.ok(surveys);
         } catch (Exception e) {
+            ResponseEntity.ok(e.getMessage());
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
         }
     }
