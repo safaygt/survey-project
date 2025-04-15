@@ -19,7 +19,6 @@ public interface UserMapper {
     @Mapping(target = "roleId", source = "role.id")
     UserDTO toDto(Usr entity);
 
-    @Mapping(target = "password", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "role", source = "roleId", qualifiedByName = "roleIdToRole")
     void updateEntityFromDto(UserDTO dto, @MappingTarget Usr entity);

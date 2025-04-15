@@ -24,24 +24,6 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @DeleteMapping("/{username}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String username) {
-        adminService.deleteUser(username);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PatchMapping("/{username}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable String username, @RequestBody UserDTO userDTO) {
-        UserDTO updatedUser = adminService.updateUser(username, userDTO);
-        return ResponseEntity.ok(updatedUser);
-    }
-
-    @PatchMapping("/update")
-    public ResponseEntity<UserDTO> updateUser(@RequestBody UserDTO userDTO) {
-        UserDTO updatedUser = adminService.updateUserWithPasswordCheck(userDTO); // Şifre kontrolü ekledik
-        return ResponseEntity.ok(updatedUser);
-    }
-
 
     @GetMapping("/current")
     public ResponseEntity<UserDTO> getCurrentUser() {
@@ -51,9 +33,5 @@ public class UserController {
         return ResponseEntity.ok(userDTO);
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteUser(@RequestBody UserDTO userDTO) {
-        adminService.deleteUserWithPasswordCheck(userDTO); // Şifre kontrolü ekledik
-        return ResponseEntity.noContent().build();
-    }
+
 }

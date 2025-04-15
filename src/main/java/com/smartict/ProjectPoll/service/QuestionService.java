@@ -7,10 +7,13 @@ import com.smartict.ProjectPoll.repository.AnswerOptionRepo;
 import com.smartict.ProjectPoll.repository.QuestionRepo;
 import com.smartict.ProjectPoll.repository.SurveyRepo;
 import com.smartict.ProjectPoll.repository.UsrAnswerRepo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class QuestionService {
+    private static final Logger logger = LoggerFactory.getLogger(QuestionService.class);
 
     @Autowired
     private QuestionRepo questionRepo;
@@ -56,19 +60,23 @@ public class QuestionService {
         return questionMapper.toDto(questionRepo.save(question));
     }
 
+    @Transactional
     public void deleteQuestion(Integer questionId) {
         Question question = questionRepo.findById(questionId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question not found"));
 
+        try {
+            List<AnswerOption> answerOptions = answerOptionRepo.findByQuestion(question, Sort.by(Sort.Direction.ASC, "id"));
+            answerOptionRepo.deleteAll(answerOptions);
 
-        List<AnswerOption> answerOptions = answerOptionRepo.findByQuestion(question, Sort.by(Sort.Direction.ASC, "id"));
-        answerOptionRepo.deleteAll(answerOptions);
+            List<UsrAnswer> usrAnswers = usrAnswerRepo.findByQuestion(question, Sort.by(Sort.Direction.ASC, "id"));
+            usrAnswerRepo.deleteAll(usrAnswers);
 
-        List<UsrAnswer> usrAnswers = usrAnswerRepo.findByQuestion(question, Sort.by(Sort.Direction.ASC, "id"));
-        usrAnswerRepo.deleteAll(usrAnswers);
-
-
-        questionRepo.delete(question);
+            questionRepo.delete(question);
+        } catch (Exception e) {
+            logger.error("Error deleting question and related data", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete question and related data");
+        }
     }
 
     public QuestionDTO createQuestion(QuestionDTO questionDTO) {
