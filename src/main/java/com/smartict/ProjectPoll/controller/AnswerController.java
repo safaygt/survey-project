@@ -49,8 +49,8 @@ public class AnswerController {
 
             String token = authorizationHeader.substring(7);
 
-            if (!jwtUtil.validateToken(token)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
+            if (jwtUtil.isTokenExpired(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token has expired.");
             }
 
             Integer userId = jwtUtil.extractUserId(token);
@@ -82,8 +82,8 @@ public class AnswerController {
 
             String token = authorizationHeader.substring(7);
 
-            if (!jwtUtil.validateToken(token)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
+            if (jwtUtil.isTokenExpired(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token has expired.");
             }
 
             Integer userId = jwtUtil.extractUserId(token);
@@ -108,9 +108,6 @@ public class AnswerController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error getting answered users: " + e.getMessage());
         }
     }
-
-
-
 
     //Kullanıcının ilgili ankete ait cevapları önüme gelecek. Buradaki işlem daha bitmedi
     @GetMapping("/{username}/answers")

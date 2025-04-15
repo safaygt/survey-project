@@ -10,6 +10,5 @@ public class UserDTO {
     private String lastName;
     private String username;
     private String password;
-    private Integer roleId; // Rol ID'si
-    private String newPassword;
+    private Integer roleId;
 }

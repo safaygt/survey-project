@@ -8,7 +8,6 @@ import com.smartict.ProjectPoll.mapper.UserMapper;
 import com.smartict.ProjectPoll.repository.RolesRepo;
 import com.smartict.ProjectPoll.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -19,7 +18,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -31,46 +29,16 @@ public class UserService implements UserDetailsService {
 
     private final UserRepo userRepo;
     private final RolesRepo rolesRepo;
-    private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-
     private final UserMapper userMapper;
 
     @Autowired
-    public UserService(UserRepo userRepo, RolesRepo rolesRepo, PasswordEncoder passwordEncoder, @Lazy JwtUtil jwtUtil, UserMapper userMapper) {
+    public UserService(UserRepo userRepo, RolesRepo rolesRepo, JwtUtil jwtUtil, UserMapper userMapper) {
         this.userRepo = userRepo;
         this.rolesRepo = rolesRepo;
-        this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.userMapper = userMapper;
     }
-
-
-    /*
-    public String register(UserDTO userDTO) {
-        if (userRepo.findByUsername(userDTO.getUsername()) != null) {
-            return "This username is already used!";
-        }
-
-        // Varsayılan rol ID'sini ayarla
-        if (userDTO.getRoleId() == null) {
-            userDTO.setRoleId(5);
-        }
-
-        Usr usr = userMapper.toEntity(userDTO);
-        usr.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-
-        Roles role = rolesRepo.findById(userDTO.getRoleId()).orElse(null);
-        if (role == null) {
-            return "Role not found";
-        }
-        usr.setRole(role);
-        userRepo.save(usr);
-        return "User has been saved successfully!";
-    }
-
-
-     */
 
     public String login(UserDTO userDTO, AuthenticationManager authenticationManager) {
         try {
@@ -87,20 +55,18 @@ public class UserService implements UserDetailsService {
         if (usr == null) {
             usr = new Usr();
             usr.setUsername(userDTO.getUsername());
-            usr.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-            usr.setRole(rolesRepo.findById(5).orElse(null)); // normal role = 5.  Admin olmasını istersen 4 ver.
+            usr.setRole(rolesRepo.findById(5).orElseThrow(() -> new RuntimeException("Default role not found"))); // Varsayılan rol
             userRepo.save(usr);
         }
 
         return jwtUtil.generateToken(usr.getUsername(), usr.getRole().getRoleText(), usr.getId());
     }
 
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Usr usr = userRepo.findByUsername(username);
         if (usr == null) {
-            throw new UsernameNotFoundException("User not found " + username);
+            throw new UsernameNotFoundException("User not found: " + username);
         }
 
         Collection<GrantedAuthority> authorities = new ArrayList<>();
@@ -109,7 +75,7 @@ public class UserService implements UserDetailsService {
             authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRoleText()));
         }
 
-        return new User(usr.getUsername(), usr.getUsername(), authorities);
+        return new User(usr.getUsername(), "", authorities);
     }
 
     public Integer findUserIdByUsername(String username) {

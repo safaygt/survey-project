@@ -25,26 +25,19 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
-    /*
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody UserDTO userDTO) {
-        return ResponseEntity.ok(userService.register(userDTO));
-    }
 
-    */
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserDTO userDTO) {
         JwtResponse jwtResponse = new JwtResponse();
         try {
             String token = userService.login(userDTO, authenticationManager);
-            Integer userId = userService.findUserIdByUsername(userDTO.getUsername()); // Kullanıcı ID'sini al
-            String username = userDTO.getUsername(); // Kullanıcı adını al
+            Integer userId = userService.findUserIdByUsername(userDTO.getUsername());
+            String username = userDTO.getUsername();
 
             jwtResponse.setToken(token);
             jwtResponse.setUserId(userId);
-            // Kullanıcı ID'sini ayarla
-            jwtResponse.setUsername(username); // Kullanıcı adını ayarla
+            jwtResponse.setUsername(username);
             jwtResponse.setResponseCode(HttpStatus.OK);
             return ResponseEntity.ok(jwtResponse);
         } catch (BadCredentialsException e) {

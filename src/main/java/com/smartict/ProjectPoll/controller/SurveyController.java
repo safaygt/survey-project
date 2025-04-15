@@ -40,7 +40,6 @@ public class SurveyController {
         }
     }
 
-    // Anket Endpointleri
     @PostMapping
     public ResponseEntity<?> createSurvey(@Valid @RequestBody SurveyDTO surveyDTO) {
         try {
@@ -105,7 +104,6 @@ public class SurveyController {
         }
     }
 
-    // Soru Endpointleri
     @PostMapping("/questions")
     public ResponseEntity<?> createQuestion(@RequestBody QuestionDTO questionDTO) {
         try {
@@ -135,6 +133,8 @@ public class SurveyController {
             @PathVariable Integer questionId,
             @RequestBody QuestionDTO questionDTO) {
         try {
+
+
             QuestionDTO updatedQuestion = questionService.updateQuestion(questionId, questionDTO);
             return ResponseEntity.ok(updatedQuestion);
         } catch (ResponseStatusException e) {

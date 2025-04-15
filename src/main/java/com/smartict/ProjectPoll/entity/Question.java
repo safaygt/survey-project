@@ -19,10 +19,10 @@
         @Column(nullable = false)
         private String questionText;
 
-        @Enumerated(EnumType.STRING) // Enum tipini belirtiyoruz
+        @Enumerated(EnumType.STRING)
         @Column(nullable = false)
         private QuestionType questionType;
 
-        @Column(nullable = false)
+        @Column(nullable = true)
         private Boolean mandatory;
     }
