@@ -80,7 +80,6 @@ activeDirectory.url=ldap://example.ip.address/
    ./gradlew bootRun
 
    
-
 🧪 Kullanım
 1. Tarayıcıdan frontend uygulamasını açın
 
