@@ -54,23 +54,45 @@ Projeyi yerel ortamınızda çalıştırmak için aşağıdaki adımları izleyi
     cd survey-project
 
 
-<p># 📦 Veritabanı Ayarları <code>spring.application.name=ProjectPoll </code></p>
-   <p><code>spring.datasource.url=jdbc:postgresql://localhost:5432/pollDB </code></p>
-   <p><code>spring.datasource.username=postgres </code></p>
-  <p><code>  spring.datasource.password=postgres </code></p>
-  <p><code> spring.datasource.driver-class-name=org.postgresql.Driver </code></p> 
-  
-  <p># 🔄 Hibernate Ayarları 
-  <code>spring.jpa.hibernate.ddl-auto=update spring.jpa.show-sql=true </code></p>
- <p> # 🔐 JWT Ayarları 
-  <code>jwt.secret=Gv3R2sNwPbd7k7U3h7vWkT+NkLWJHzBlZBIZFwS+NxY= </code>
-  <code> jwt.expiration=3600000 </code></p>
-  <p># 🌐 CORS Ayarları 
-     <code>survey.security.cors.allowed-hosts[0]=http://localhost:5173 </code> </p>
- <p> # 🧩 Active Directory Ayarları 
-   <code>activeDirectory.domain=example.local </code>
-  <code> activeDirectory.url=ldap://example.ip.address/ </code></p>
-
+<ul>
+  <li>
+    <strong>📦 Veritabanı Ayarları</strong>
+    <ul>
+      <li><code>spring.application.name=ProjectPoll</code></li>
+      <li><code>spring.datasource.url=jdbc:postgresql://localhost:5432/pollDB</code></li>
+      <li><code>spring.datasource.username=postgres</code></li>
+      <li><code>spring.datasource.password=postgres</code></li>
+      <li><code>spring.datasource.driver-class-name=org.postgresql.Driver</code></li>
+    </ul>
+  </li>
+  <li>
+    <strong>🔄 Hibernate Ayarları</strong>
+    <ul>
+      <li><code>spring.jpa.hibernate.ddl-auto=update</code></li>
+      <li><code>spring.jpa.show-sql=true</code></li>
+    </ul>
+  </li>
+  <li>
+    <strong>🔐 JWT Ayarları</strong>
+    <ul>
+      <li><code>jwt.secret=Gv3R2sNwPbd7k7U3h7vWkT+NkLWJHzBlZBIZFwS+NxY=</code></li>
+      <li><code>jwt.expiration=3600000</code></li>
+    </ul>
+  </li>
+  <li>
+    <strong>🌐 CORS Ayarları</strong>
+    <ul>
+      <li><code>survey.security.cors.allowed-hosts[0]=http://localhost:5173</code></li>
+    </ul>
+  </li>
+  <li>
+    <strong>🧩 Active Directory Ayarları</strong>
+    <ul>
+      <li><code>activeDirectory.domain=example.local</code></li>
+      <li><code>activeDirectory.url=ldap://example.ip.address/</code></li>
+    </ul>
+  </li>
+</ul>
 5. ▶️ Uygulamayı çalıştırın:
 
    ```bash
