@@ -38,4 +38,6 @@ out/
 
 # Uygulama ayarlarındaki activeDirectory bilgilerini gizle
 application.properties
-!src/main/resources/application.properties
+src/main/resources/application.properties
+
+**/application.properties
