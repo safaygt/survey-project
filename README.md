@@ -97,7 +97,7 @@ Projeyi yerel ortamınızda çalıştırmak için aşağıdaki adımları izleyi
 
    ```bash
    ./gradlew bootRun
-
+   ```
    
 🧪 Kullanım
 1. Tarayıcıdan frontend uygulamasını açın
