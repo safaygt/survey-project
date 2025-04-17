@@ -101,25 +101,37 @@ Backend ile birlikte çalışması gereken React tabanlı frontend projesine aş
 
 
 
+---
+
+
+
 🤝 Katkıda Bulunma
 Projeye katkıda bulunmak isterseniz aşağıdaki adımları izleyebilirsiniz:
 
 Bu repoyu fork edin
 
 Yeni bir branch oluşturun:
+   ```bash
   git checkout -b feature/YeniOzellik
+  ```
 
 Geliştirmelerinizi yapın
 
 Commit atın:
+   ```bash
   git commit -m 'Yeni özellik eklendi'
-
+   ```
 Değişiklikleri gönderin:
+   ```bash
   git push origin feature/YeniOzellik
+  ```
 
 
+---
 
 
-Geliştiren: [@safaygt](https://github.com/safaygt) 
-💡 Sorularınız, geri bildirimleriniz ya da önerileriniz için PR veya issue açabilirsiniz!
+> Geliştiren: [@safaygt](https://github.com/safaygt)  
+
+> 💡 Sorularınız ya da önerileriniz için PR veya issue açabilirsiniz!
+
 
