@@ -54,7 +54,7 @@ Projeyi yerel ortamınızda çalıştırmak için aşağıdaki adımları izleyi
     cd survey-project
 
 
-<p><code>spring.application.name=ProjectPoll </code> # 📦 Veritabanı Ayarları </p>
+<p># 📦 Veritabanı Ayarları <code>spring.application.name=ProjectPoll </code></p>
    <p><code>spring.datasource.url=jdbc:postgresql://localhost:5432/pollDB </code></p>
    <p><code>spring.datasource.username=postgres </code></p>
   <p><code>  spring.datasource.password=postgres </code></p>
