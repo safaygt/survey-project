@@ -9,10 +9,9 @@ import org.mapstruct.Mapping;
 public interface QuestionMapper {
     @Mapping(source = "id", target = "id")
     @Mapping(source = "surveyId", target = "survey.id")
-    //@Mapping(target = "options", ignore = true) //options alanını ignore et
     Question toEntity(QuestionDTO dto);
 
     @Mapping(source = "survey.id", target = "surveyId")
-    @Mapping(target = "options", ignore = true) //options alanını ignore et
+    @Mapping(target = "options", ignore = true)
     QuestionDTO toDto(Question entity);
 }

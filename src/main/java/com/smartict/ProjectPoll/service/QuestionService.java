@@ -7,9 +7,10 @@ import com.smartict.ProjectPoll.repository.AnswerOptionRepo;
 import com.smartict.ProjectPoll.repository.QuestionRepo;
 import com.smartict.ProjectPoll.repository.SurveyRepo;
 import com.smartict.ProjectPoll.repository.UsrAnswerRepo;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,27 +21,23 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class QuestionService {
     private static final Logger logger = LoggerFactory.getLogger(QuestionService.class);
 
-    @Autowired
-    private QuestionRepo questionRepo;
+    private final QuestionRepo questionRepo;
 
-    @Autowired
-    private SurveyRepo surveyRepo;
+    private final SurveyRepo surveyRepo;
 
-    @Autowired
-    private QuestionMapper questionMapper;
+    private final QuestionMapper questionMapper;
 
-    @Autowired
-    private UsrAnswerRepo usrAnswerRepo;
+    private final UsrAnswerRepo usrAnswerRepo;
 
-    @Autowired
-    private AnswerOptionRepo answerOptionRepo;
+    private final AnswerOptionRepo answerOptionRepo;
 
-    public QuestionDTO updateQuestion(Integer questionId, QuestionDTO questionDTO) {
+    public void updateQuestion(Integer questionId, QuestionDTO questionDTO) {
         Question question = questionRepo.findById(questionId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question not found"));
+                .orElseThrow(() -> new EntityNotFoundException( "Question not found"));
 
         if(questionDTO.getQuestionText() != null)
             question.setQuestionText(questionDTO.getQuestionText());
@@ -57,13 +54,13 @@ public class QuestionService {
             }
         }
 
-        return questionMapper.toDto(questionRepo.save(question));
+        questionMapper.toDto(questionRepo.save(question));
     }
 
     @Transactional
     public void deleteQuestion(Integer questionId) {
         Question question = questionRepo.findById(questionId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Question not found"));
 
         try {
             List<AnswerOption> answerOptions = answerOptionRepo.findByQuestion(question, Sort.by(Sort.Direction.ASC, "id"));
@@ -79,11 +76,11 @@ public class QuestionService {
         }
     }
 
-    public QuestionDTO createQuestion(QuestionDTO questionDTO) {
+    public void createQuestion(QuestionDTO questionDTO) {
         Question question = questionMapper.toEntity(questionDTO);
         Survey survey = surveyRepo.findById(questionDTO.getSurveyId()).orElse(null);
         if (survey == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Survey not found with id: " + questionDTO.getSurveyId());
+            throw new EntityNotFoundException("Survey does not match with id: " + questionDTO.getSurveyId());
         }
         question.setSurvey(survey);
 
@@ -108,13 +105,13 @@ public class QuestionService {
             }
         }
 
-        return questionMapper.toDto(savedQuestion);
+        questionMapper.toDto(savedQuestion);
     }
 
-    public List<QuestionDTO> getQuestionsBySurveyId(Integer surveyId, Sort sort) { // Sort parametresini ekleyin
+    public List<QuestionDTO> getQuestionsBySurveyId(Integer surveyId, Sort sort) {
         Survey survey = surveyRepo.findById(surveyId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Survey not found"));
-        List<Question> questions = questionRepo.findBySurvey(survey, sort); // Sort nesnesini kullanın
+                .orElseThrow(() -> new EntityNotFoundException("Survey not found"));
+        List<Question> questions = questionRepo.findBySurvey(survey, sort);
 
         return questions.stream().map(question -> {
             QuestionDTO dto = questionMapper.toDto(question);
@@ -122,10 +119,10 @@ public class QuestionService {
                 List<AnswerOption> answerOptions = answerOptionRepo.findByQuestion(question, Sort.by(Sort.Direction.ASC, "id")); // Sort nesnesini kullanın
                 List<String> options = answerOptions.stream()
                         .map(AnswerOption::getOptionText)
-                        .collect(Collectors.toList());
+                        .toList();
                 dto.setOptions(options);
             }
             return dto;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 }

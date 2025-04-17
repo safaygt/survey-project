@@ -2,7 +2,7 @@ package com.smartict.ProjectPoll.controller;
 
 import com.smartict.ProjectPoll.dto.UserDTO;
 import com.smartict.ProjectPoll.service.AdminService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,11 +12,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("v1/users")
-@CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*") // CrossOrigin ekle
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    private AdminService adminService;
+
+    private final AdminService adminService;
 
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers() {

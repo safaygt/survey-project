@@ -12,5 +12,5 @@ public interface AnswerOptionRepo extends JpaRepository<AnswerOption, Integer> {
     @Transactional
     void deleteByQuestion(Question question);
     List<AnswerOption> findByQuestionId(Integer questionId, Sort sort);
-    List<AnswerOption> findByQuestion(Question question, Sort sort); // Sort parametresini ekleyin
+    List<AnswerOption> findByQuestion(Question question, Sort sort);
 }
