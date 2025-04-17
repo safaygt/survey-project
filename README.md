@@ -54,25 +54,7 @@ Projeyi yerel ortamınızda çalıştırmak için aşağıdaki adımları izleyi
     cd survey-project
 
 
-3. ⚙️ application.properties dosyasını oluşturun:
-
-spring.application.name=ProjectPoll
-spring.datasource.url=jdbc:postgresql://localhost:5432/pollDB
-spring.datasource.username=postgres
-spring.datasource.password=postgres
-spring.datasource.driver-class-name=org.postgresql.Driver
-spring.jpa.hibernate.ddl-auto=update 
-spring.jpa.show-sql=true 
-
-jwt.secret=Gv3R2sNwPbd7k7U3h7vWkT+NkLWJHzBlZBIZFwS+NxY= 
-jwt.expiration=3600000
-
-survey.security.cors.allowed-hosts[0]=http://localhost:5173
-
-# 🔐 Active Directory ayarları
-activeDirectory.domain=example.local
-activeDirectory.url=ldap://example.ip.address/
-
+<pre><code>spring.application.name=ProjectPoll # 📦 Veritabanı Ayarları spring.datasource.url=jdbc:postgresql://localhost:5432/pollDB spring.datasource.username=postgres spring.datasource.password=postgres spring.datasource.driver-class-name=org.postgresql.Driver # 🔄 Hibernate Ayarları spring.jpa.hibernate.ddl-auto=update spring.jpa.show-sql=true # 🔐 JWT Ayarları jwt.secret=Gv3R2sNwPbd7k7U3h7vWkT+NkLWJHzBlZBIZFwS+NxY= jwt.expiration=3600000 # 🌐 CORS Ayarları survey.security.cors.allowed-hosts[0]=http://localhost:5173 # 🧩 Active Directory Ayarları activeDirectory.domain=example.local activeDirectory.url=ldap://example.ip.address/ </code></pre>
 
 5. ▶️ Uygulamayı çalıştırın:
 
