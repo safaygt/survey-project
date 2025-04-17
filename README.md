@@ -54,7 +54,22 @@ Projeyi yerel ortamınızda çalıştırmak için aşağıdaki adımları izleyi
     cd survey-project
 
 
-<pre><code>spring.application.name=ProjectPoll # 📦 Veritabanı Ayarları spring.datasource.url=jdbc:postgresql://localhost:5432/pollDB spring.datasource.username=postgres spring.datasource.password=postgres spring.datasource.driver-class-name=org.postgresql.Driver # 🔄 Hibernate Ayarları spring.jpa.hibernate.ddl-auto=update spring.jpa.show-sql=true # 🔐 JWT Ayarları jwt.secret=Gv3R2sNwPbd7k7U3h7vWkT+NkLWJHzBlZBIZFwS+NxY= jwt.expiration=3600000 # 🌐 CORS Ayarları survey.security.cors.allowed-hosts[0]=http://localhost:5173 # 🧩 Active Directory Ayarları activeDirectory.domain=example.local activeDirectory.url=ldap://example.ip.address/ </code></pre>
+<p><code>spring.application.name=ProjectPoll </code> # 📦 Veritabanı Ayarları </p>
+   <p><code>spring.datasource.url=jdbc:postgresql://localhost:5432/pollDB </code></p>
+   <p><code>spring.datasource.username=postgres </code></p>
+  <p><code>  spring.datasource.password=postgres </code></p>
+  <p><code> spring.datasource.driver-class-name=org.postgresql.Driver </code></p> 
+  
+  <p># 🔄 Hibernate Ayarları 
+  <code>spring.jpa.hibernate.ddl-auto=update spring.jpa.show-sql=true </code></p>
+ <p> # 🔐 JWT Ayarları 
+  <code>jwt.secret=Gv3R2sNwPbd7k7U3h7vWkT+NkLWJHzBlZBIZFwS+NxY= </code>
+  <code> jwt.expiration=3600000 </code></p>
+  <p># 🌐 CORS Ayarları 
+     <code>survey.security.cors.allowed-hosts[0]=http://localhost:5173 </code> </p>
+ <p> # 🧩 Active Directory Ayarları 
+   <code>activeDirectory.domain=example.local </code>
+  <code> activeDirectory.url=ldap://example.ip.address/ </code></p>
 
 5. ▶️ Uygulamayı çalıştırın:
 
