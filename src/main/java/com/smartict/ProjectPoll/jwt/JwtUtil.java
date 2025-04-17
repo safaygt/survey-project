@@ -41,6 +41,8 @@ public class JwtUtil {
         return token;
     }
 
+
+
     public String extractUsername(String token) {
         String username = getClaims(token).getSubject();
         System.out.println("Username extracted from token " + username); // Loglama

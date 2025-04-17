@@ -1,66 +1,62 @@
 package com.smartict.ProjectPoll.service;
 
 import com.smartict.ProjectPoll.dto.UsrAnswerDTO;
-import com.smartict.ProjectPoll.entity.AnswerOption;
-import com.smartict.ProjectPoll.entity.Question;
-import com.smartict.ProjectPoll.entity.Usr;
-import com.smartict.ProjectPoll.entity.UsrAnswer;
+import com.smartict.ProjectPoll.entity.*;
 import com.smartict.ProjectPoll.mapper.UsrAnswerMapper;
 import com.smartict.ProjectPoll.repository.AnswerOptionRepo;
 import com.smartict.ProjectPoll.repository.QuestionRepo;
 import com.smartict.ProjectPoll.repository.UsrAnswerRepo;
-import com.smartict.ProjectPoll.repository.UserRepo;
+import com.smartict.ProjectPoll.repository.UserRepository;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.smartict.ProjectPoll.util.UserHelper;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
+@RequiredArgsConstructor
 public class AnswerService {
 
     private final UsrAnswerRepo usrAnswerRepo;
     private final UsrAnswerMapper usrAnswerMapper;
-    private final UserRepo userRepo;
+    private final UserRepository userRepository;
     private final QuestionRepo questionRepo;
     private final AnswerOptionRepo answerOptionRepo;
 
-    @Autowired
-    public AnswerService(UsrAnswerRepo usrAnswerRepo, UsrAnswerMapper usrAnswerMapper, UserRepo userRepo, QuestionRepo questionRepo, AnswerOptionRepo answerOptionRepo) {
-        this.usrAnswerRepo = usrAnswerRepo;
-        this.usrAnswerMapper = usrAnswerMapper;
-        this.userRepo = userRepo;
-        this.questionRepo = questionRepo;
-        this.answerOptionRepo = answerOptionRepo;
-    }
 
-    public void createUsrAnswer(Integer surveyId, List<UsrAnswerDTO> usrAnswerDTOs, Integer userId) {
-        Usr usr = userRepo.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+    public void createUsrAnswer(Integer surveyId, List<UsrAnswerDTO> usrAnswerDTOs) {
+        String currentUserName = UserHelper.getCurrentUserName();
+        Usr usr = userRepository.findByUsername(currentUserName);
+        Assert.notNull(usr,"User not found");
 
         for (UsrAnswerDTO usrAnswerDTO : usrAnswerDTOs) {
             Question question = questionRepo.findById(usrAnswerDTO.getQuestionId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question not found"));
+                    .orElseThrow(() -> new EntityNotFoundException("Question not found"));
 
-            if (!question.getSurvey().getId().equals(surveyId)) {
+            if (question.getSurvey() != null && !Objects.equals(question.getSurvey().getId(), surveyId)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Question does not belong to the given survey.");
+                // illegal arugment exception veya custom exception ismide QuestionNotBelongException((
             }
 
             UsrAnswer usrAnswer = usrAnswerMapper.toEntity(usrAnswerDTO);
             usrAnswer.setQuestion(question);
             usrAnswer.setUser(usr);
 
-            if (question.getQuestionType().toString().equals("SHORT_ANSWER")) {
+            if (question.getQuestionType() != QuestionType.SHORT_ANSWER) {
                 usrAnswer.setAnswerText(usrAnswerDTO.getAnswerText());
                 usrAnswer.setAnswerOption(null);
             } else {
                 if (usrAnswerDTO.getAnswerOptionId() != null) {
                     AnswerOption answerOption = answerOptionRepo.findById(usrAnswerDTO.getAnswerOptionId())
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Answer option not found"));
+                            .orElseThrow(() -> new EntityNotFoundException ("Answer option not found"));
                     usrAnswer.setAnswerOption(answerOption);
                     usrAnswer.setAnswerText(answerOption.getOptionText());
                 }
@@ -73,40 +69,41 @@ public class AnswerService {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<UsrAnswerDTO> getAnswerByUsr (Integer usrId, Sort sort){
-        Usr usr = userRepo.findById(usrId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        Usr usr = userRepository.findById(usrId).orElseThrow(() -> new EntityNotFoundException("User not found"));
         List<UsrAnswer> answers = usrAnswerRepo.findByUser(usr);
         return answers.stream().map(usrAnswerMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
 
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public List<UsrAnswerDTO> getAnswerByUsername(String username, Sort sort) {
-        Usr usr = userRepo.findByUsername(username);
+    public List<UsrAnswerDTO> getAnswerByUsername(String username) {
+        Usr usr = userRepository.findByUsername(username);
         if (usr == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+            throw new EntityNotFoundException("User not found");
         }
         List<UsrAnswer> answers = usrAnswerRepo.findByUser(usr);
         return answers.stream().map(usrAnswerMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<UsrAnswerDTO> getAllAnswers(Sort sort) {
         return usrAnswerRepo.findAll(sort).stream()
                 .map(usrAnswerMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
-    public boolean checkSurveyAnswered(Integer surveyId, Integer userId) {
-        return usrAnswerRepo.existsByUser_IdAndQuestion_Survey_Id(userId, surveyId);
+    public boolean checkSurveyAnswered(Integer surveyId) {
+        String currentUserName = UserHelper.getCurrentUserName();
+        return usrAnswerRepo.existsByUser_UsernameAndQuestion_Survey_Id(currentUserName, surveyId);
     }
 
     public List<Usr> getUsersAnsweredSurvey(Integer surveyId) {
         return usrAnswerRepo.findByQuestion_Survey_Id(surveyId).stream()
                 .map(UsrAnswer::getUser)
                 .distinct()
-                .collect(Collectors.toList());
+                .toList();
     }
 }

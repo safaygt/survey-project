@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -41,16 +40,12 @@ public class SurveyController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createSurvey(@Valid @RequestBody SurveyDTO surveyDTO) {
+    public ResponseEntity<Void> createSurvey(@Valid @RequestBody SurveyDTO surveyDTO) {
         try {
-            SurveyDTO createdSurveyDTO = surveyService.createSurvey(surveyDTO);
-            return ResponseEntity.ok(createdSurveyDTO);
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+            surveyService.createSurvey(surveyDTO);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -91,28 +86,26 @@ public class SurveyController {
     }
 
     @PatchMapping("/{surveyId}")
-    public ResponseEntity<?> updateSurvey(
+    public ResponseEntity<Void> updateSurvey(
             @PathVariable Integer surveyId,
             @RequestBody SurveyDTO surveyDTO) {
         try {
-            SurveyDTO updatedSurvey = surveyService.updateSurvey(surveyId, surveyDTO);
-            return ResponseEntity.ok(updatedSurvey);
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+            surveyService.updateSurvey(surveyId, surveyDTO);
+            return ResponseEntity.ok().build();
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 
     @PostMapping("/questions")
-    public ResponseEntity<?> createQuestion(@RequestBody QuestionDTO questionDTO) {
+    public ResponseEntity<Void> createQuestion(@RequestBody QuestionDTO questionDTO) {
         try {
-            QuestionDTO createdQuestionDTO = questionService.createQuestion(questionDTO);
-            return ResponseEntity.ok(createdQuestionDTO);
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+            questionService.createQuestion(questionDTO);
+            return ResponseEntity.ok().build();
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -129,18 +122,17 @@ public class SurveyController {
     }
 
     @PatchMapping("/questions/{questionId}")
-    public ResponseEntity<?> updateQuestion(
+    public ResponseEntity<Void> updateQuestion(
             @PathVariable Integer questionId,
             @RequestBody QuestionDTO questionDTO) {
         try {
 
 
-            QuestionDTO updatedQuestion = questionService.updateQuestion(questionId, questionDTO);
-            return ResponseEntity.ok(updatedQuestion);
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+            questionService.updateQuestion(questionId, questionDTO);
+            return ResponseEntity.ok().build();
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -156,30 +148,27 @@ public class SurveyController {
         }
     }
 
-    // Cevap Seçeneği Endpointleri
     @PostMapping("/answer-options")
-    public ResponseEntity<?> createAnswerOption(@RequestBody AnswerOptionDTO answerOptionDTO) {
+    public ResponseEntity<Void> createAnswerOption(@RequestBody AnswerOptionDTO answerOptionDTO) {
         try {
-            AnswerOptionDTO createdAnswerOption = answerOptionService.createAnswerOption(answerOptionDTO);
-            return ResponseEntity.ok(createdAnswerOption);
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+            answerOptionService.createAnswerOption(answerOptionDTO);
+            return ResponseEntity.ok().build();
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 
     @PatchMapping("/answer-options/{answerOptionId}")
-    public ResponseEntity<?> updateAnswerOption(
+    public ResponseEntity<Void> updateAnswerOption(
             @PathVariable Integer answerOptionId,
             @RequestBody AnswerOptionDTO answerOptionDTO) {
         try {
-            AnswerOptionDTO updatedAnswerOption = answerOptionService.updateAnswerOption(answerOptionId, answerOptionDTO);
-            return ResponseEntity.ok(updatedAnswerOption);
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+            answerOptionService.updateAnswerOption(answerOptionId, answerOptionDTO);
+            return ResponseEntity.ok().build();
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 

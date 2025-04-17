@@ -8,5 +8,5 @@ import org.springframework.data.domain.Sort; // Sort sınıfını içe aktarın
 import java.util.List;
 
 public interface SurveyRepo extends JpaRepository<Survey, Integer> {
-    List<Survey> findByFKuserID(Usr usr, Sort sort); // Sort parametresini ekleyin
+    List<Survey> findByFKuserID(Usr usr, Sort sort);
 }

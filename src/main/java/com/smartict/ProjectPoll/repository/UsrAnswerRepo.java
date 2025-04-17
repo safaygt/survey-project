@@ -16,9 +16,9 @@ public interface UsrAnswerRepo extends JpaRepository<UsrAnswer, Integer> {
 
     List<UsrAnswer> findByQuestion(Question question, Sort sort);
 
-    boolean existsByUser_IdAndQuestion_Survey_Id(Integer userId, Integer surveyId);
+    boolean existsByUser_UsernameAndQuestion_Survey_Id(String username, Integer surveyId); // Düzeltilmiş metod adı
 
     List<UsrAnswer> findByUser(Usr user);
 
-    List<UsrAnswer> findByQuestion_Survey_Id(Integer surveyId); // Bu satırı ekleyin
+    List<UsrAnswer> findByQuestion_Survey_Id(Integer surveyId);
 }
