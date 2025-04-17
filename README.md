@@ -96,7 +96,7 @@ activeDirectory.url=ldap://example.ip.address/
 
 Backend ile birlikte çalışması gereken React tabanlı frontend projesine aşağıdaki bağlantıdan ulaşabilirsiniz:
 
-📎 smartICT_frontend → GitHub
+📎 [smartICT_frontend → GitHub](https://github.com/safaygt/smartICT_frontend.git)
 
 ☝️ Not: Frontend uygulaması çalışmadan önce backend sunucusunun ayağa kaldırılmış olması gereklidir. Aksi takdirde API bağlantıları başarısız olacaktır.
 
@@ -121,6 +121,6 @@ Değişiklikleri gönderin:
 
 
 
-Geliştiren: @safaygt
+Geliştiren: [@safaygt](https://github.com/safaygt) 
 💡 Sorularınız, geri bildirimleriniz ya da önerileriniz için PR veya issue açabilirsiniz!
 
