@@ -6,6 +6,7 @@ import com.smartict.ProjectPoll.entity.Usr;
 import com.smartict.ProjectPoll.jwt.JwtUtil;
 import com.smartict.ProjectPoll.service.AdminService;
 import com.smartict.ProjectPoll.service.AnswerService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -26,12 +27,24 @@ public class AnswerController {
     private final AdminService adminService;
 
     @PostMapping
-    public ResponseEntity<Void> createUsrAnswer(@PathVariable Integer surveyId, @RequestBody List<UsrAnswerDTO> usrAnswerDTOs) {
+    public ResponseEntity<String> createUsrAnswer(@PathVariable Integer surveyId, @RequestBody List<UsrAnswerDTO> usrAnswerDTOs, HttpServletRequest request) {
         try {
-            answerService.createUsrAnswer(surveyId, usrAnswerDTOs);
-            return ResponseEntity.ok().build();
+            String authorizationHeader = request.getHeader("Authorization");
+            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid Authorization header.");
+            }
+
+            String token = authorizationHeader.substring(7);
+
+            if (jwtUtil.isTokenExpired(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token has expired.");
+            }
+
+            Integer userId = jwtUtil.extractUserId(token);
+            answerService.createUsrAnswer(surveyId, usrAnswerDTOs, userId);
+            return ResponseEntity.ok("Answers submitted successfully");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating user answer: " + e.getMessage());
         }
     }
 

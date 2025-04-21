@@ -40,10 +40,10 @@ public class SurveyController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createSurvey(@Valid @RequestBody SurveyDTO surveyDTO) {
+    public ResponseEntity<SurveyDTO> createSurvey(@Valid @RequestBody SurveyDTO surveyDTO) {
         try {
-            surveyService.createSurvey(surveyDTO);
-            return ResponseEntity.ok().build();
+            SurveyDTO createdSurvey = surveyService.createSurvey(surveyDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdSurvey);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
@@ -86,23 +86,22 @@ public class SurveyController {
     }
 
     @PatchMapping("/{surveyId}")
-    public ResponseEntity<Void> updateSurvey(
+    public ResponseEntity<SurveyDTO> updateSurvey(
             @PathVariable Integer surveyId,
             @RequestBody SurveyDTO surveyDTO) {
         try {
-            surveyService.updateSurvey(surveyId, surveyDTO);
-            return ResponseEntity.ok().build();
-
+            SurveyDTO updatedSurvey = surveyService.updateSurvey(surveyId, surveyDTO);
+            return ResponseEntity.ok(updatedSurvey);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
     @PostMapping("/questions")
-    public ResponseEntity<Void> createQuestion(@RequestBody QuestionDTO questionDTO) {
+    public ResponseEntity<QuestionDTO> createQuestion(@RequestBody QuestionDTO questionDTO) {
         try {
-            questionService.createQuestion(questionDTO);
-            return ResponseEntity.ok().build();
+            QuestionDTO createdQuestionDTO = questionService.createQuestion(questionDTO);
+            return ResponseEntity.ok(createdQuestionDTO);
 
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -122,14 +121,14 @@ public class SurveyController {
     }
 
     @PatchMapping("/questions/{questionId}")
-    public ResponseEntity<Void> updateQuestion(
+    public ResponseEntity<QuestionDTO> updateQuestion(
             @PathVariable Integer questionId,
             @RequestBody QuestionDTO questionDTO) {
         try {
 
 
-            questionService.updateQuestion(questionId, questionDTO);
-            return ResponseEntity.ok().build();
+            QuestionDTO updatedQuestion = questionService.updateQuestion(questionId, questionDTO);
+            return ResponseEntity.ok(updatedQuestion);
 
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -149,10 +148,10 @@ public class SurveyController {
     }
 
     @PostMapping("/answer-options")
-    public ResponseEntity<Void> createAnswerOption(@RequestBody AnswerOptionDTO answerOptionDTO) {
+    public ResponseEntity<AnswerOptionDTO> createAnswerOption(@RequestBody AnswerOptionDTO answerOptionDTO) {
         try {
-            answerOptionService.createAnswerOption(answerOptionDTO);
-            return ResponseEntity.ok().build();
+            AnswerOptionDTO createdAnswerOption = answerOptionService.createAnswerOption(answerOptionDTO);
+            return ResponseEntity.ok(createdAnswerOption);
 
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -160,12 +159,12 @@ public class SurveyController {
     }
 
     @PatchMapping("/answer-options/{answerOptionId}")
-    public ResponseEntity<Void> updateAnswerOption(
+    public ResponseEntity<AnswerOptionDTO> updateAnswerOption(
             @PathVariable Integer answerOptionId,
             @RequestBody AnswerOptionDTO answerOptionDTO) {
         try {
-            answerOptionService.updateAnswerOption(answerOptionId, answerOptionDTO);
-            return ResponseEntity.ok().build();
+            AnswerOptionDTO updatedAnswerOption = answerOptionService.updateAnswerOption(answerOptionId, answerOptionDTO);
+            return ResponseEntity.ok(updatedAnswerOption);
 
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -197,7 +196,7 @@ public class SurveyController {
     }
 
 
-    // Soru Tipleri Endpointi
+
     @GetMapping("/question-types")
     public ResponseEntity<QuestionType[]> getQuestionTypes() {
         return ResponseEntity.ok(QuestionType.values());

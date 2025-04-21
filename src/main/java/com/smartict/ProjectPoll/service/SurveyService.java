@@ -37,16 +37,14 @@ public class SurveyService {
                 .toList();
     }
 
-    public void updateSurvey(Integer surveyId, SurveyDTO surveyDTO) {
+    public SurveyDTO updateSurvey(Integer surveyId, SurveyDTO surveyDTO) {
         Survey survey = surveyRepo.findById(surveyId)
-                .orElseThrow(() -> new EntityNotFoundException("Survey not found"));
-
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Survey not found"));
 
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Usr user = userRepository.findByUsername(userDetails.getUsername());
         if (user == null) {
-            throw new EntityNotFoundException("User not found");
-
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
 
         Survey updatedSurvey = surveyMapper.toEntity(surveyDTO);
@@ -55,7 +53,7 @@ public class SurveyService {
         survey.setSurveyName(surveyDTO.getSurveyName());
         surveyRepo.save(survey);
 
-        surveyMapper.toDto(survey);
+        return surveyMapper.toDto(survey);
     }
 
     @Transactional
@@ -83,15 +81,15 @@ public class SurveyService {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public void createSurvey(SurveyDTO surveyDTO) {
+    public SurveyDTO createSurvey(SurveyDTO surveyDTO) {
         Survey survey = surveyMapper.toEntity(surveyDTO);
         Usr user = userRepository.findById(surveyDTO.getFkuserID()).orElse(null);
         if (user == null) {
             throw new EntityNotFoundException("User does not match with id: "+ surveyDTO.getFkuserID());
-
         }
         survey.setFKuserID(user);
-        surveyMapper.toDto(surveyRepo.save(survey));
+        Survey savedSurvey = surveyRepo.save(survey);
+        return surveyMapper.toDto(savedSurvey);
     }
 
 

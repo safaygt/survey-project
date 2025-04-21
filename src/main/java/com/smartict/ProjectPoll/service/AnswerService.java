@@ -32,31 +32,29 @@ public class AnswerService {
 
 
 
-    public void createUsrAnswer(Integer surveyId, List<UsrAnswerDTO> usrAnswerDTOs) {
-        String currentUserName = UserHelper.getCurrentUserName();
-        Usr usr = userRepository.findByUsername(currentUserName);
-        Assert.notNull(usr,"User not found");
+    public void createUsrAnswer(Integer surveyId, List<UsrAnswerDTO> usrAnswerDTOs, Integer userId) {
+        Usr usr = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         for (UsrAnswerDTO usrAnswerDTO : usrAnswerDTOs) {
             Question question = questionRepo.findById(usrAnswerDTO.getQuestionId())
-                    .orElseThrow(() -> new EntityNotFoundException("Question not found"));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question not found"));
 
-            if (question.getSurvey() != null && !Objects.equals(question.getSurvey().getId(), surveyId)) {
+            if (!question.getSurvey().getId().equals(surveyId)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Question does not belong to the given survey.");
-                // illegal arugment exception veya custom exception ismide QuestionNotBelongException((
             }
 
             UsrAnswer usrAnswer = usrAnswerMapper.toEntity(usrAnswerDTO);
             usrAnswer.setQuestion(question);
             usrAnswer.setUser(usr);
 
-            if (question.getQuestionType() != QuestionType.SHORT_ANSWER) {
+            if (question.getQuestionType().toString().equals("SHORT_ANSWER")) {
                 usrAnswer.setAnswerText(usrAnswerDTO.getAnswerText());
                 usrAnswer.setAnswerOption(null);
             } else {
                 if (usrAnswerDTO.getAnswerOptionId() != null) {
                     AnswerOption answerOption = answerOptionRepo.findById(usrAnswerDTO.getAnswerOptionId())
-                            .orElseThrow(() -> new EntityNotFoundException ("Answer option not found"));
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Answer option not found"));
                     usrAnswer.setAnswerOption(answerOption);
                     usrAnswer.setAnswerText(answerOption.getOptionText());
                 }
@@ -65,6 +63,7 @@ public class AnswerService {
             usrAnswerRepo.save(usrAnswer);
         }
     }
+
 
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

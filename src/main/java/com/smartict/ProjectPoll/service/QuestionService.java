@@ -35,9 +35,9 @@ public class QuestionService {
 
     private final AnswerOptionRepo answerOptionRepo;
 
-    public void updateQuestion(Integer questionId, QuestionDTO questionDTO) {
+    public QuestionDTO updateQuestion(Integer questionId, QuestionDTO questionDTO) {
         Question question = questionRepo.findById(questionId)
-                .orElseThrow(() -> new EntityNotFoundException( "Question not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question not found"));
 
         if(questionDTO.getQuestionText() != null)
             question.setQuestionText(questionDTO.getQuestionText());
@@ -45,7 +45,6 @@ public class QuestionService {
         if(questionDTO.getMandatory() != null)
             question.setMandatory(questionDTO.getMandatory());
 
-        // Mevcut questionType'ı koru eğer questionType güncellenmemişse
         if (questionDTO.getQuestionType() != null && !questionDTO.getQuestionType().isEmpty()) {
             try {
                 question.setQuestionType(QuestionType.valueOf(questionDTO.getQuestionType().toUpperCase()));
@@ -54,8 +53,9 @@ public class QuestionService {
             }
         }
 
-        questionMapper.toDto(questionRepo.save(question));
+        return questionMapper.toDto(questionRepo.save(question));
     }
+
 
     @Transactional
     public void deleteQuestion(Integer questionId) {
@@ -76,11 +76,11 @@ public class QuestionService {
         }
     }
 
-    public void createQuestion(QuestionDTO questionDTO) {
+    public QuestionDTO createQuestion(QuestionDTO questionDTO) {
         Question question = questionMapper.toEntity(questionDTO);
         Survey survey = surveyRepo.findById(questionDTO.getSurveyId()).orElse(null);
         if (survey == null) {
-            throw new EntityNotFoundException("Survey does not match with id: " + questionDTO.getSurveyId());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Survey not found with id: " + questionDTO.getSurveyId());
         }
         question.setSurvey(survey);
 
@@ -105,7 +105,7 @@ public class QuestionService {
             }
         }
 
-        questionMapper.toDto(savedQuestion);
+        return questionMapper.toDto(savedQuestion);
     }
 
     public List<QuestionDTO> getQuestionsBySurveyId(Integer surveyId, Sort sort) {
