@@ -4,7 +4,6 @@ import com.smartict.ProjectPoll.dto.UserDTO;
 import com.smartict.ProjectPoll.entity.EnumRole;
 import com.smartict.ProjectPoll.entity.Roles;
 import com.smartict.ProjectPoll.entity.Usr;
-import com.smartict.ProjectPoll.jwt.JwtUtil;
 import com.smartict.ProjectPoll.mapper.UserMapper;
 import com.smartict.ProjectPoll.repository.RolesRepo;
 import com.smartict.ProjectPoll.repository.UserRepository;
@@ -25,6 +24,7 @@ import java.util.logging.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +32,6 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final RolesRepo rolesRepo;
-    private final JwtUtil jwtUtil;
     private final UserMapper userMapper;
 
     Logger logger = Logger.getLogger(getClass().getName());
@@ -49,14 +48,22 @@ public class UserService implements UserDetailsService {
 
         Usr usr = userRepository.findByUsername(userDTO.getUsername());
         if (usr == null) {
-            usr = new Usr();
-            usr.setUsername(userDTO.getUsername());
-            usr.setRole(rolesRepo.findByRoleText(EnumRole.NORMAL).orElseThrow(() -> new RuntimeException("Default role not found")));
-            return userMapper.toDto(userRepository.save(usr));
+            Usr newUser = new Usr();
+            newUser.setUsername(userDTO.getUsername());
 
+            List<Usr> existingUsers = userRepository.findAll();
+            Roles defaultRole;
+            if (existingUsers.isEmpty()) {
+                defaultRole = rolesRepo.findByRoleText(EnumRole.ADMIN)
+                        .orElseThrow(() -> new RuntimeException("Admin role not found"));
+            } else {
+                defaultRole = rolesRepo.findByRoleText(EnumRole.NORMAL)
+                        .orElseThrow(() -> new RuntimeException("Normal role not found"));
+            }
+            newUser.setRole(defaultRole);
+            return userMapper.toDto(userRepository.save(newUser));
         }
         return userMapper.toDto(usr);
-
     }
 
     @Override
@@ -69,7 +76,7 @@ public class UserService implements UserDetailsService {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         Roles role = usr.getRole();
         if (role != null) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRoleText())); // Düzeltilmiş satır
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRoleText()));
         }
 
         return new User(usr.getUsername(), "", authorities);

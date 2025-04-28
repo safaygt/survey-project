@@ -27,7 +27,7 @@ public class AuthController {
         JwtResponse jwtResponse = new JwtResponse();
         try {
             UserDTO user = userService.login(userDTO, authenticationManager);
-            String role = roleService.getRoleTextById(user.getRole().name()); // Düzeltilmiş satır
+            String role = roleService.getRoleTextById(user.getRole().name());
             String token = jwtUtil.generateToken(user.getUsername(), role, user.getId());
             Integer userId = userService.findUserIdByUsername(userDTO.getUsername());
             jwtResponse.setToken(token);

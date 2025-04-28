@@ -1,7 +1,6 @@
 package com.smartict.ProjectPoll.dto;
 
-import com.smartict.ProjectPoll.entity.QuestionType;
-import com.smartict.ProjectPoll.entity.Survey;
+
 import lombok.Data;
 
 import java.util.List;
